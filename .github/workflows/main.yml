@@ -6,9 +6,18 @@ name: Node.js CI
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'README.md'
   pull_request:
-    branches: [ "main" ]
-  
+    types:
+      - opened
+      - edited
+    branches: 
+      - main
+      - 'dev/*' # Pull requests to development branches, 
+      - 'feat/**' # Pull requests to feature branches, ** is that can have multiple levels of subdirectories
+      - 'dev-*' # pull requests to branches that start with dev-
+    
 
 jobs:
   build:
