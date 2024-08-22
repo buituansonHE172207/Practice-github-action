@@ -48,9 +48,7 @@ jobs:
       with:
       #dist-files is the name of the artifact
         name: dist-files
-        path: | 
-          dist/
-          public/
+        path: dist
         #You can add more paths to the artifact by separating them with a comma
  #We can download the artifact in the next job
   deploy:
@@ -59,6 +57,10 @@ jobs:
     steps:
       - name: download the artifact
         uses: actions/download-artifact@v4\
+        with:
+        #dist-files is the name of the artifact
+          name: dist-files
+
       - name: deployment
         run: |
           echo "Deploying the artifact"
