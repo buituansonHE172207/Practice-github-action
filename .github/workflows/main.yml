@@ -40,4 +40,14 @@ jobs:
     - run: npm run build --if-present
     - run: npm test
     - run: npm run lint
-    
+  # Using artifact to store the build file for deployment
+    - name: Archive production artifact
+      uses: actions/upload-artifact@v4
+      with:
+      #dist-files is the name of the artifact
+        name: dist-files
+        path: | 
+          dist/
+          public/
+        #You can add more paths to the artifact by separating them with a comma
+
