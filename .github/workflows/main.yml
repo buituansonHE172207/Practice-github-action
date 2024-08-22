@@ -39,8 +39,13 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run build --if-present
-    - run: npm test
-    - run: npm run lint
+    - name: execute tests
+      run: npm test
+    - name: lint
+      run: npm run lint
+    - name: publish the js file name
+      run: find dist/assets/*.js -type f -execdir echo "The file name is {}" \;
+
   # Using artifact to store the build file for deployment
   # only one artifact with the same name can be stored in the same workflow
     - name: Archive production artifact
