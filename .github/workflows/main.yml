@@ -20,7 +20,27 @@ on:
     
 
 jobs:
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+        #Use cache to store the dependencies and minimize the time to install them
+      - name: Cache the dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          # hashFiles: Use the hashFiles function to hash the contents of package-lock.json, 
+          key: deps-node-modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test
+
   build:
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       script-file: ${{ steps.publish.outputs.script-file }}
@@ -36,7 +56,14 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+      
+    - name: Cache the dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        # hashFiles: Use the hashFiles function to hash the contents of package-lock.json, 
+        key: deps-node-modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
     - run: npm ci
     - run: npm run build --if-present
     - name: execute tests
@@ -50,14 +77,6 @@ jobs:
 
   # Using artifact to store the build file for deployment
   # only one artifact with the same name can be stored in the same workflow
-    - name: Archive production artifact
-      uses: actions/upload-artifact@v4
-      with:
-      #dist-files is the name of the artifact
-        name: dist-files
-        path: dist
-        #You can add more paths to the artifact by separating them with a comma
- #We can download the artifact in the next job
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -74,4 +93,5 @@ jobs:
       - name: deployment
         run: |
           echo "Deploying the artifact"
-          
+
+  
