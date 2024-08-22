@@ -21,9 +21,9 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    outputs:
+      script-file: ${{ steps.publish.outputs.script-file }}
     strategy:
       matrix:
         # node-version: [18.x, 20.x, 22.x]
@@ -44,7 +44,9 @@ jobs:
     - name: lint
       run: npm run lint
     - name: publish the js file name
-      run: find dist/assets/*.js -type f -execdir echo "The file name is {}" \;
+      id: publish
+      run: find dist/assets/*.js -type f -execdir echo '::set-output name=script-file::{}' \;
+    
 
   # Using artifact to store the build file for deployment
   # only one artifact with the same name can be stored in the same workflow
@@ -65,6 +67,9 @@ jobs:
         with:
         #dist-files is the name of the artifact
           name: dist-files
+    
+      - name: Print the js file name
+        run: echo ${{ needs.build.outputs.script-file }}
 
       - name: deployment
         run: |
