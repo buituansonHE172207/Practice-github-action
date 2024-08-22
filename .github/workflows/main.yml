@@ -26,7 +26,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]
+        # node-version: [18.x, 20.x, 22.x]
+        node-version: [22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -41,6 +42,7 @@ jobs:
     - run: npm test
     - run: npm run lint
   # Using artifact to store the build file for deployment
+  # only one artifact with the same name can be stored in the same workflow
     - name: Archive production artifact
       uses: actions/upload-artifact@v4
       with:
@@ -50,4 +52,14 @@ jobs:
           dist/
           public/
         #You can add more paths to the artifact by separating them with a comma
-
+ #We can download the artifact in the next job
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: download the artifact
+        uses: actions/download-artifact@v4\
+      - name: deployment
+        run: |
+          echo "Deploying the artifact"
+          
